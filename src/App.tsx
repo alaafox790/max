@@ -21,7 +21,8 @@ import {
   Download,
   Printer,
   Users,
-  BarChart
+  BarChart,
+  Home
 } from 'lucide-react';
 
 enum OperationType {
@@ -76,6 +77,7 @@ type Screen = 'intro' | 'welcome' | 'form' | 'success' | 'admin';
 interface FormData {
   first_name: string;
   father_name: string;
+  mobile_number: string;
   school_stage: string;
   school_name: string;
   reason_for_choosing: string;
@@ -110,6 +112,7 @@ export default function App() {
   const [formData, setFormData] = useState<FormData>({
     first_name: '',
     father_name: '',
+    mobile_number: '',
     school_stage: '',
     school_name: '',
     reason_for_choosing: '',
@@ -117,9 +120,9 @@ export default function App() {
   });
 
   const tracks = [
-    { id: 'automation', name: 'مسار الأتمتة (Automation)', icon: <RotateCcw className="w-8 h-8 text-sky-400" />, desc: 'تعلم كيف تجعل الآلات تعمل نيابة عنك' },
-    { id: 'agent', name: 'بناء وكيل ذكي (AI Agent)', icon: <Bot className="w-8 h-8 text-purple-400" />, desc: 'صمم وكلاء أذكياء يتفاعلون بشكل مستقل' },
-    { id: 'apps', name: 'بناء تطبيقات متنوعة', icon: <Rocket className="w-8 h-8 text-emerald-400" />, desc: 'حول أفكارك إلى تطبيقات واقعية ذكية' },
+    { id: 'automation', name: 'مسار الأتمتة (Automation)', icon: <RotateCcw strokeWidth={1.5} className="w-8 h-8 text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]" />, desc: 'تعلم كيف تجعل الآلات تعمل نيابة عنك وتحسّن أداء عملك' },
+    { id: 'agent', name: 'بناء وكيل ذكي (AI Agent)', icon: <Bot strokeWidth={1.5} className="w-8 h-8 text-purple-400 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)]" />, desc: 'صمم وكلاء أذكياء يتفاعلون بشكل مستقل لحل المشكلات المعقدة' },
+    { id: 'apps', name: 'بناء تطبيقات متنوعة', icon: <Rocket strokeWidth={1.5} className="w-8 h-8 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />, desc: 'حول أفكارك إلى تطبيقات واقعية ذكية ومبتكرة' },
   ];
 
   const handleTrackSelect = (trackName: string) => {
@@ -142,6 +145,13 @@ export default function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    const mobileNumber = formData.mobile_number.trim();
+    if (!/^\d{11}$/.test(mobileNumber)) {
+      setError('يجب أن يتكون رقم الموبايل من 11 رَقَم');
+      setLoading(false);
+      return;
+    }
 
     const regId = generateRegId();
 
@@ -208,7 +218,7 @@ export default function App() {
   };
 
   const exportToCSV = () => {
-    const headers = ['رقم التسجيل', 'المسار', 'الاسم الأول', 'اسم الأب', 'المرحلة الدراسية', 'المدرسة', 'سبب الاختيار', 'المعرفة بالذكاء الاصطناعي', 'تاريخ التسجيل'];
+    const headers = ['رقم التسجيل', 'المسار', 'الاسم الأول', 'اسم الأب', 'رقم الموبايل', 'المرحلة الدراسية', 'المدرسة', 'سبب الاختيار', 'المعرفة بالذكاء الاصطناعي', 'تاريخ التسجيل'];
     const csvRows = [headers.join(',')];
 
     trainees.forEach(row => {
@@ -220,6 +230,7 @@ export default function App() {
         row.track_name,
         row.first_name,
         row.father_name,
+        row.mobile_number || '',
         row.school_stage,
         row.school_name,
         `"${(row.reason_for_choosing || '').replace(/"/g, '""')}"`,
@@ -242,6 +253,7 @@ export default function App() {
     setFormData({
       first_name: '',
       father_name: '',
+      mobile_number: '',
       school_stage: '',
       school_name: '',
       reason_for_choosing: '',
@@ -253,9 +265,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#030712] relative overflow-hidden">
       {/* Top right Hamburger Menu */}
-      <div className="absolute top-6 right-6 z-50 print:hidden">
+      <div className="fixed top-6 right-6 z-50 print:hidden">
         <button 
           onClick={() => setIsMenuOpen(true)}
           className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-white backdrop-blur-md"
@@ -385,14 +397,24 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Background Blobs */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute top-1/4 -right-20 w-80 h-80 bg-sky-600/30 rounded-full blur-[100px] animate-blob" />
-        <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-purple-600/30 rounded-full blur-[100px] animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/20 rounded-full blur-[120px] animate-blob animation-delay-4000" />
-      </div>
+      <motion.div
+        animate={{ 
+          scale: isMenuOpen ? 0.95 : 1,
+          opacity: isMenuOpen ? 0.5 : 1,
+          borderRadius: isMenuOpen ? "24px" : "0px",
+          x: isMenuOpen ? -16 : 0
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="min-h-screen flex flex-col items-center justify-center p-4 relative origin-center"
+      >
+        {/* Background Blobs */}
+        <div className="absolute inset-0 z-0 overflow-hidden rounded-[inherit]">
+          <div className="absolute top-1/4 -right-20 w-80 h-80 bg-sky-600/30 rounded-full blur-[100px] animate-blob" />
+          <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-purple-600/30 rounded-full blur-[100px] animate-blob animation-delay-2000" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/20 rounded-full blur-[120px] animate-blob animation-delay-4000" />
+        </div>
 
-      <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
         {currentScreen === 'intro' && (
           <motion.div
             key="intro"
@@ -440,11 +462,18 @@ export default function App() {
             <motion.button
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
                transition={{ delay: 0.8 }}
                onClick={() => setCurrentScreen('welcome')}
-               className="btn-primary flex items-center gap-2 text-lg px-8 py-4 shadow-[0_0_20px_rgba(249,115,22,0.3)] bg-gradient-to-l from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 border-none"
+               className="group relative flex items-center justify-center gap-2 text-lg px-10 py-5 rounded-2xl overflow-hidden font-bold shadow-[0_0_40px_rgba(249,115,22,0.3)] hover:shadow-[0_0_60px_rgba(249,115,22,0.5)] transition-shadow duration-500 border border-orange-500/30 hover:border-transparent"
             >
-               دخول للأكاديمية
+               <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+               <div className="absolute inset-0 bg-white/5 group-hover:bg-transparent transition-colors duration-500" />
+               <span className="relative z-10 flex items-center gap-2 text-orange-400 group-hover:text-gray-900 transition-colors duration-300">
+                 دخول للأكاديمية
+                 <ChevronRight className="w-5 h-5 text-orange-400 group-hover:text-gray-900 rotate-180 transition-colors" />
+               </span>
             </motion.button>
           </motion.div>
         )}
@@ -452,52 +481,92 @@ export default function App() {
         {currentScreen === 'welcome' && (
           <motion.div
             key="welcome"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-4xl z-10 text-center"
+            transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+            className="w-full max-w-4xl z-10 text-center mt-10 md:mt-0"
           >
-            <div className="mb-8 flex justify-center">
-              <div className="w-20 h-20 glass flex items-center justify-center rounded-3xl shadow-[0_0_30px_rgba(14,165,233,0.3)]">
-                <BrainCircuit className="w-12 h-12 text-sky-400" />
+            <motion.div 
+              initial={{ y: 0 }}
+              animate={{ y: [-8, 8, -8] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              className="mb-10 flex justify-center relative perspective-container"
+            >
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-sky-500/20 blur-[80px] rounded-full point-events-none" />
+              <div className="relative w-28 h-28 bg-gradient-to-b from-[#1e293b]/80 to-[#0f172a]/90 border border-white/10 flex items-center justify-center rounded-[2.5rem] shadow-[inset_0_1px_rgba(255,255,255,0.2),_0_20px_40px_rgba(0,0,0,0.5),_0_0_40px_rgba(14,165,233,0.3)] overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-sky-400/20 via-transparent to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <BrainCircuit strokeWidth={1.5} className="w-14 h-14 text-sky-400 drop-shadow-[0_0_15px_rgba(56,189,248,0.6)] transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500" />
               </div>
-            </div>
+            </motion.div>
             
-            <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tight">
-              كورس الـ <span className="text-sky-500">AI</span> والـ <span className="text-emerald-500">Automation</span>
-            </h1>
-            <p className="text-gray-400 text-lg mb-12 max-w-2xl mx-auto">
-              انطلق في رحلة احترافية لتعلم تقنيات الذكاء الاصطناعي وبناء أنظمة الأتمتة الذكية. اختر مسارك التدريبي واكتشف المستقبل اليوم.
-            </p>
+            <motion.h1 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl sm:text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight text-white"
+            >
+              مسارك نحو احتراف <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-tl from-sky-400 to-sky-600 block sm:inline mt-2 sm:mt-0">الذكاء الاصطناعي</span>
+              <span className="text-gray-500/50 mx-2 md:mx-4 font-light text-2xl md:text-4xl hidden sm:inline-block">&amp;</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 block sm:inline mt-2 sm:mt-0">الأتمتة</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-gray-400 text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed font-medium"
+            >
+              انطلق في رحلة احترافية لتعلم تقنيات العصر وبناء أنظمة ذكية مبتكرة. اختر مسارك التدريبي واصنع مستقبلك اليوم.
+            </motion.p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div 
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.15
+                  }
+                }
+              }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10"
+            >
               {tracks.map((track) => (
                 <motion.div
                   key={track.id}
-                  whileHover={{ y: -8 }}
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 }
+                  }}
+                  whileHover={{ y: -6, scale: 1.02 }}
                   onClick={() => handleTrackSelect(track.name)}
-                  className="glass-card group text-center flex flex-col"
+                  className="bg-[#0f172a]/60 backdrop-blur-xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] rounded-[1.5rem] p-6 transition-all duration-300 hover:bg-[#1e293b]/60 hover:shadow-sky-500/20 group text-center flex flex-col relative overflow-hidden cursor-pointer"
                 >
-                  <div className="mb-4 flex justify-center transform group-hover:scale-110 transition-transform">
-                    {track.icon}
+                  <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="mb-4 flex justify-center transform group-hover:scale-110 transition-all duration-500 relative z-10">
+                    <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/5 shadow-inner flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-sky-500/20 group-hover:to-emerald-500/20 group-hover:border-white/10 transition-all duration-500">
+                      {track.icon}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{track.name}</h3>
-                  <p className="text-sm text-gray-400 mb-6 flex-grow">{track.desc}</p>
-                  <div className="mt-auto">
+                  <h3 className="text-xl font-bold mb-2 text-gray-100 group-hover:text-sky-300 transition-colors">{track.name}</h3>
+                  <p className="text-xs text-gray-400 mb-5 flex-grow leading-relaxed font-medium group-hover:text-gray-300 transition-colors">{track.desc}</p>
+                  <div className="mt-auto relative z-10">
                     <button 
-                      className="w-full py-2.5 rounded-xl bg-sky-500/10 text-sky-400 font-bold group-hover:bg-sky-500 group-hover:text-white transition-all flex items-center justify-center gap-2"
+                      className="w-full py-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 text-sm font-bold group-hover:bg-gradient-to-r group-hover:from-sky-500 group-hover:to-blue-600 group-hover:text-white group-hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] group-hover:border-transparent transition-all flex items-center justify-center gap-2 overflow-hidden relative"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTrackSelect(track.name);
                       }}
                     >
-                       انضم للمسار
-                       <ChevronRight className="w-4 h-4 rotate-180" />
+                       <span className="relative z-10">انضم للمسار</span>
+                       <ChevronRight className="w-5 h-5 rotate-180 relative z-10" />
                     </button>
                   </div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         )}
 
@@ -507,9 +576,12 @@ export default function App() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
-            className="w-full max-w-2xl z-10"
+            className="w-full max-w-3xl z-10 my-8"
           >
-            <div className="glass rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-br from-[#1e293b]/70 to-[#0f172a]/90 backdrop-blur-3xl border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6),_0_0_40px_rgba(14,165,233,0.1)] rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 blur-[100px] rounded-full point-events-none" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full point-events-none" />
+              
               <AnimatePresence>
                 {loading && (
                   <motion.div 
@@ -582,6 +654,21 @@ export default function App() {
                       onChange={handleInputChange}
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-400 mr-2 text-right block">رقم الموبايل</label>
+                  <input
+                    required
+                    type="tel"
+                    name="mobile_number"
+                    placeholder="أدخل رقم الموبايل (11 رقم)"
+                    className="input-field text-left text-lg tracking-wider"
+                    value={formData.mobile_number}
+                    onChange={handleInputChange}
+                    dir="ltr"
+                    maxLength={11}
+                  />
                 </div>
 
                 <div className="space-y-4">
@@ -676,40 +763,113 @@ export default function App() {
         {currentScreen === 'success' && (
           <motion.div
             key="success"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             className="w-full max-w-lg z-10 text-center"
           >
-            <div className="glass rounded-3xl p-10 shadow-2xl">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 10, stiffness: 100 }}
-                className="mb-6 flex justify-center"
-              >
-                <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-500" />
-                </div>
-              </motion.div>
+            <div className="glass rounded-3xl p-1 relative overflow-hidden bg-gradient-to-b from-sky-500/20 to-transparent">
+              <div className="absolute inset-0 bg-grid-white/[0.02]" />
+              <div className="bg-[#030712]/90 backdrop-blur-xl rounded-[23px] p-10 relative border border-white/10 shadow-2xl">
+                
+                {/* Check Animation */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', damping: 10, stiffness: 100 }}
+                  className="mb-8 flex justify-center relative"
+                >
+                  <motion.div 
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="absolute inset-0 bg-emerald-500/30 rounded-full blur-xl"
+                  />
+                  <div className="w-24 h-24 bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 rounded-2xl rotate-45 flex items-center justify-center border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                    <CheckCircle2 className="w-12 h-12 text-emerald-400 -rotate-45" />
+                  </div>
+                </motion.div>
 
-              <h2 className="text-3xl font-black mb-2 text-emerald-400">تم التسجيل بنجاح!</h2>
-              <p className="text-gray-400 mb-8">لقد استلمنا طلب انضمامك للكورس. نتطلع لرؤيتك قريباً.</p>
+                <motion.h2 
+                  initial={{ opacity: 0, y: 15, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ delay: 0.2, duration: 0.7, ease: "easeOut" }}
+                  className="text-3xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400"
+                >
+                  تم التسجيل بنجاح!
+                </motion.h2>
+                <motion.p 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-gray-400 mb-8"
+                >
+                  لقد استلمنا طلب انضمامك للكورس. نتطلع لرؤيتك قريباً.
+                </motion.p>
 
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 relative">
-                <p className="text-xs text-gray-500 mb-2 font-bold uppercase tracking-wider">رقم التسجيل الفريد</p>
-                <p className="text-4xl font-mono font-black text-sky-400 tracking-widest">{registrationId}</p>
-                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-                  <Info className="w-4 h-4" />
-                  يرجى الاحتفاظ بهذا الرقم لمتابعة حالة طلبك
-                </div>
+                {/* Digital Ticket Pattern */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 100 }}
+                  className="relative mb-8"
+                >
+                  {/* Glowing line separating */}
+                  <div className="absolute -left-10 right-10 top-0 h-px bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
+                  <div className="absolute -left-10 right-10 bottom-0 h-px w-full bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
+                  
+                  <div className="bg-sky-950/30 border border-sky-500/20 rounded-2xl p-8 relative overflow-hidden backdrop-blur-md">
+                    {/* Corner accents */}
+                    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-sky-400" />
+                    <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-sky-400" />
+                    <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-sky-400" />
+                    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-sky-400" />
+                    
+                    <motion.div 
+                      className="absolute inset-0 bg-sky-500/5 opacity-0 hover:opacity-100 transition-opacity blur-xl z-0"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 4 }}
+                    />
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <BrainCircuit className="w-5 h-5 text-sky-400 opacity-70 animate-pulse" />
+                        <p className="text-xs text-sky-200/70 font-bold uppercase tracking-[0.2em] relative z-10">
+                          رقم التسجيل الفريد
+                        </p>
+                      </div>
+                      
+                      <motion.p 
+                        initial={{ opacity: 0, y: 10, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                        className="text-4xl sm:text-5xl font-mono font-black text-white tracking-widest drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]"
+                      >
+                        {registrationId}
+                      </motion.p>
+                      
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        className="mt-6 flex items-center justify-center gap-2 text-xs text-sky-200/50 bg-sky-950/50 py-2 px-4 rounded-xl border border-sky-500/10 inline-flex"
+                      >
+                        <Info className="w-4 h-4 text-sky-400 shrink-0" />
+                        يرجى الاحتفاظ بهذا الرقم لمتابعة حالة طلبك
+                      </motion.div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  onClick={resetApp}
+                  className="w-full py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all font-bold text-gray-200 flex items-center justify-center gap-2"
+                >
+                  العودة للبداية لتسجيل جديد
+                  <Home className="w-5 h-5 ml-2 mr-0" />
+                </motion.button>
               </div>
-
-              <button
-                onClick={resetApp}
-                className="w-full py-4 rounded-xl border border-white/10 hover:bg-white/5 transition-all font-bold"
-              >
-                العودة للبداية لتسجيل جديد
-              </button>
             </div>
           </motion.div>
         )}
@@ -787,6 +947,7 @@ export default function App() {
                          <tr>
                            <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">رقم التسجيل</th>
                            <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">الاسم الثلاثي</th>
+                           <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">رقم الموبايل</th>
                            <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">المسار</th>
                            <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">المدرسة/الفرقة</th>
                            <th className="p-4 whitespace-nowrap border-b border-white/5 font-bold">تاريخ التسجيل</th>
@@ -795,12 +956,13 @@ export default function App() {
                        <tbody className="divide-y divide-white/5 print:divide-gray-200">
                          {trainees.length === 0 ? (
                            <tr>
-                              <td colSpan={5} className="p-8 text-center text-gray-400">لا يوجد بيانات لعرضها</td>
+                             <td colSpan={6} className="p-8 text-center text-gray-400">لا يوجد بيانات لعرضها</td>
                            </tr>
                          ) : trainees.map((t, i) => (
                            <tr key={i} className="hover:bg-white/5 transition-colors print:text-black">
                              <td className="p-4 font-mono text-sky-400 print:text-black">{t.registration_number}</td>
                              <td className="p-4">{t.first_name} {t.father_name}</td>
+                             <td className="p-4 text-gray-300 font-mono text-left" dir="ltr">{t.mobile_number || '---'}</td>
                              <td className="p-4 text-emerald-400 text-xs print:text-black">{t.track_name}</td>
                              <td className="p-4 text-gray-300 text-xs print:text-black flex flex-col gap-1">
                                <span>{t.school_name}</span>
@@ -825,6 +987,7 @@ export default function App() {
         <span>© {new Date().getFullYear()} AI & Automation Training Center - جميع الحقوق محفوظة</span>
         <span className="text-[10px] opacity-70">إعداد وتصميم: فوكس</span>
       </footer>
+      </motion.div>
     </div>
   );
 }
