@@ -21,14 +21,13 @@ service cloud.firestore {
     }
 
     function isValidTraineeData(data) {
-      return data.keys().hasAll(["registration_number", "track_name", "first_name", "father_name", "grade", "division", "school_name", "reason_for_choosing", "ai_knowledge", "created_at"]) &&
-             data.keys().size() == 10 &&
+      return data.keys().hasAll(["registration_number", "track_name", "first_name", "father_name", "school_stage", "school_name", "reason_for_choosing", "ai_knowledge", "created_at"]) &&
+             data.keys().size() == 9 &&
              data.registration_number is string && data.registration_number.size() > 0 && data.registration_number.size() <= 50 &&
              data.track_name is string && data.track_name.size() > 0 && data.track_name.size() <= 100 &&
              data.first_name is string && data.first_name.size() > 0 && data.first_name.size() <= 100 &&
              data.father_name is string && data.father_name.size() > 0 && data.father_name.size() <= 100 &&
-             data.grade is string && data.grade.size() > 0 && data.grade.size() <= 50 &&
-             data.division is string && data.division.size() > 0 && data.division.size() <= 50 &&
+             data.school_stage is string && data.school_stage.size() > 0 && data.school_stage.size() <= 50 &&
              data.school_name is string && data.school_name.size() > 0 && data.school_name.size() <= 200 &&
              data.reason_for_choosing is string && data.reason_for_choosing.size() > 0 && data.reason_for_choosing.size() <= 5000 &&
              data.ai_knowledge is string && data.ai_knowledge.size() > 0 && data.ai_knowledge.size() <= 5000 &&

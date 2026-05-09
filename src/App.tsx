@@ -76,8 +76,7 @@ type Screen = 'intro' | 'welcome' | 'form' | 'success' | 'admin';
 interface FormData {
   first_name: string;
   father_name: string;
-  grade: string;
-  division: string;
+  school_stage: string;
   school_name: string;
   reason_for_choosing: string;
   ai_knowledge: string;
@@ -111,8 +110,7 @@ export default function App() {
   const [formData, setFormData] = useState<FormData>({
     first_name: '',
     father_name: '',
-    grade: '',
-    division: '',
+    school_stage: '',
     school_name: '',
     reason_for_choosing: '',
     ai_knowledge: '',
@@ -210,7 +208,7 @@ export default function App() {
   };
 
   const exportToCSV = () => {
-    const headers = ['رقم التسجيل', 'المسار', 'الاسم الأول', 'اسم الأب', 'الصف', 'الفرقة', 'المدرسة', 'سبب الاختيار', 'المعرفة بالذكاء الاصطناعي', 'تاريخ التسجيل'];
+    const headers = ['رقم التسجيل', 'المسار', 'الاسم الأول', 'اسم الأب', 'المرحلة الدراسية', 'المدرسة', 'سبب الاختيار', 'المعرفة بالذكاء الاصطناعي', 'تاريخ التسجيل'];
     const csvRows = [headers.join(',')];
 
     trainees.forEach(row => {
@@ -222,8 +220,7 @@ export default function App() {
         row.track_name,
         row.first_name,
         row.father_name,
-        row.grade,
-        row.division,
+        row.school_stage,
         row.school_name,
         `"${(row.reason_for_choosing || '').replace(/"/g, '""')}"`,
         `"${(row.ai_knowledge || '').replace(/"/g, '""')}"`,
@@ -245,8 +242,7 @@ export default function App() {
     setFormData({
       first_name: '',
       father_name: '',
-      grade: '',
-      division: '',
+      school_stage: '',
       school_name: '',
       reason_for_choosing: '',
       ai_knowledge: '',
@@ -480,15 +476,24 @@ export default function App() {
                   key={track.id}
                   whileHover={{ y: -8 }}
                   onClick={() => handleTrackSelect(track.name)}
-                  className="glass-card group text-center"
+                  className="glass-card group text-center flex flex-col"
                 >
                   <div className="mb-4 flex justify-center transform group-hover:scale-110 transition-transform">
                     {track.icon}
                   </div>
                   <h3 className="text-xl font-bold mb-2">{track.name}</h3>
-                  <p className="text-sm text-gray-400">{track.desc}</p>
-                  <div className="mt-6 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ChevronRight className="rotate-180 text-sky-400" />
+                  <p className="text-sm text-gray-400 mb-6 flex-grow">{track.desc}</p>
+                  <div className="mt-auto">
+                    <button 
+                      className="w-full py-2.5 rounded-xl bg-sky-500/10 text-sky-400 font-bold group-hover:bg-sky-500 group-hover:text-white transition-all flex items-center justify-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTrackSelect(track.name);
+                      }}
+                    >
+                       انضم للمسار
+                       <ChevronRight className="w-4 h-4 rotate-180" />
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -579,28 +584,35 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-400 mr-2 text-right block">الصف</label>
-                    <input
-                      required
-                      name="grade"
-                      placeholder="مثال: الصف الثالث"
-                      className="input-field"
-                      value={formData.grade}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-400 mr-2 text-right block">الفرقة / الفصل</label>
-                    <input
-                      required
-                      name="division"
-                      placeholder="مثال: علمي رياضة أو فصل أ"
-                      className="input-field"
-                      value={formData.division}
-                      onChange={handleInputChange}
-                    />
+                <div className="space-y-4">
+                  <label className="text-sm font-bold text-gray-200 mr-2 text-right block">المرحلة الدراسية</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['ابتدائي', 'اعدادي', 'ثانوي'].map((stage) => (
+                      <label 
+                        key={stage}
+                        className={`flex items-center justify-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
+                          formData.school_stage === stage 
+                            ? 'bg-sky-500/20 border-sky-500/50 text-sky-400' 
+                            : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="school_stage"
+                          value={stage}
+                          checked={formData.school_stage === stage}
+                          onChange={handleInputChange}
+                          className="hidden"
+                          required
+                        />
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          formData.school_stage === stage ? 'border-sky-400' : 'border-gray-500'
+                        }`}>
+                          {formData.school_stage === stage && <div className="w-2 h-2 rounded-full bg-sky-400" />}
+                        </div>
+                        <span className="font-bold">{stage}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -792,7 +804,7 @@ export default function App() {
                              <td className="p-4 text-emerald-400 text-xs print:text-black">{t.track_name}</td>
                              <td className="p-4 text-gray-300 text-xs print:text-black flex flex-col gap-1">
                                <span>{t.school_name}</span>
-                               <span className="opacity-50">{t.grade} - {t.division}</span>
+                               <span className="opacity-50">{t.school_stage || (t.grade ? `${t.grade} - ${t.division}` : '')}</span>
                              </td>
                              <td className="p-4 text-gray-400 text-xs print:text-black" dir="ltr">
                                {t.created_at?.toDate ? t.created_at.toDate().toLocaleString('ar-EG') : '---'}

@@ -9,14 +9,13 @@
         "track_name": { "type": "string" },
         "first_name": { "type": "string" },
         "father_name": { "type": "string" },
-        "grade": { "type": "string" },
-        "division": { "type": "string" },
+        "school_stage": { "type": "string" },
         "school_name": { "type": "string" },
         "reason_for_choosing": { "type": "string" },
         "ai_knowledge": { "type": "string" },
         "created_at": { "type": "timestamp" }
       },
-      "required": ["registration_number", "track_name", "first_name", "father_name", "grade", "division", "school_name", "reason_for_choosing", "ai_knowledge", "created_at"]
+      "required": ["registration_number", "track_name", "first_name", "father_name", "school_stage", "school_name", "reason_for_choosing", "ai_knowledge", "created_at"]
     }
   },
   "firestore": {
