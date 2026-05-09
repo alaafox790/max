@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#030712] text-white font-sans overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:bg-white/10 hover:scale-[1.02] cursor-pointer;
+  }
+
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all text-right;
+  }
+
+  .btn-primary {
+    @apply bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-8 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite alternate;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    overflow: visible !important;
+  }
+  .animate-blob {
+    display: none !important;
+  }
+  .glass, .glass-card, .btn-primary {
+     background: none !important;
+     border: none !important;
+     color: black !important;
+     box-shadow: none !important;
+  }
+  .text-sky-400, .text-emerald-400, .text-purple-400, .text-white, .text-gray-400, .text-gray-300 {
+     color: black !important;
+  }
+  .bg-white\/5, .bg-white\/10 {
+     background-color: transparent !important;
+  }
+  .border-white\/10, .border-white\/5 {
+     border-color: #d1d5db !important;
+  }
+  thead {
+     background-color: #f3f4f6 !important;
+  }
+  td, th {
+     border-bottom: 1px solid #d1d5db !important;
+  }
+}
+
